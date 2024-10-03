@@ -62,6 +62,8 @@ app.post('/sendEmail', async (req, res) => {
 exports.handler = async (event, context) => {
     console.log('Incoming event:', event);
     console.log('Context:', context);
+    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Exists' : 'Not Set');
+     console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Exists' : 'Not Set');
     return new Promise((resolve) => {
         app(event, context, (err, response) => {
             if (err) {
