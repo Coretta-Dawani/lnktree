@@ -85,7 +85,7 @@ const LinkTree = () => {
     }
 
     try {
-      const response = await fetch('https://corielnks.netlify.app/.netlify/functions/sendEmail', {
+      const response = await fetch('https://corielnks.netlify.app/.netlify/functions/server', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
