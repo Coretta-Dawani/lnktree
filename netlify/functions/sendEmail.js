@@ -1,80 +1,65 @@
-const nodemailer = require('nodemailer');
+const express = require('express');
 const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use Gmail as the email service
-    auth: {
-        user: process.env.EMAIL_USER, // Your Gmail address from environment variables
-        pass: process.env.EMAIL_PASS, // Your generated App Password for Gmail
-    },
+const app = express();
+app.use(express.json()); // To parse JSON bodies
+
+// Rate limiting middleware
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: "Too many requests from this IP, please try again later.",
 });
 
-// Rate limiter for the form submission route to prevent abuse
-const formLimiter = rateLimit({
-    windowMs: 60 * 1000, // 1-minute time window
-    max: 20, // Limit each IP to 20 requests per minute
-    message: "Too many requests, please try again later.",
-});
+// Apply rate limiting to the sendEmail route
+app.use('/sendEmail', limiter);
 
-// Main handler for the Netlify Function
-exports.handler = async (event) => {
-    // Allow CORS
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-    };
+// Email sending endpoint
+app.post('/sendEmail', async (req, res) => {
+    const { name, email, subject, message } = req.body;
 
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 200,
-            headers,
-        };
-    }
-
-    // Rate limiting logic
-    const ip = event.headers['x-nf-client-connection-ip']; // Get client's IP address
-    if (formLimiter && !formLimiter({ ip })) {
-        return {
-            statusCode: 429,
-            body: JSON.stringify({ error: "Too many requests, please try again later." }),
-            headers,
-        };
-    }
-
-    const { name, email, subject, message } = JSON.parse(event.body); // Parse request body
-
-    // Validation
+    // Basic validation
     if (!name || !email || !subject || !message) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'All fields are required.' }),
-            headers,
-        };
+        return res.status(400).json({ error: 'All fields are required.' });
     }
 
-    // Email options for Nodemailer
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USER, // Use your email
+            pass: process.env.EMAIL_PASS,  // Use your password
+        },
+    });
+
     const mailOptions = {
         from: `"${name}" <${process.env.EMAIL_USER}>`,
-        replyTo: email,
         to: process.env.EMAIL_USER,
-        subject: `Corieslnktree Message from ${name} - ${subject}`,
+        subject: `Message from ${name} - ${subject}`,
         text: `A new message from ${name} (${email}): \n\n${message}`,
     };
 
     try {
         await transporter.sendMail(mailOptions);
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ message: 'Email sent successfully!' }),
-            headers,
-        };
+        return res.status(200).json({ message: 'Email sent successfully!' });
     } catch (error) {
         console.error('Error sending email:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Error sending email' }),
-            headers,
-        };
+        return res.status(500).json({ error: 'Error sending email' });
     }
+});
+
+// Handler for Netlify
+exports.handler = async (event, context) => {
+    // Simulate Express routing
+    return new Promise((resolve) => {
+        app.handle(event, context, (err, response) => {
+            if (err) {
+                return resolve({
+                    statusCode: 500,
+                    body: JSON.stringify({ error: 'Internal Server Error' }),
+                });
+            }
+            resolve(response);
+        });
+    });
 };
