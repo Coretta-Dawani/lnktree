@@ -85,7 +85,7 @@ const LinkTree = () => {
     }
 
     try {
-      const response = await fetch('http://corielnks.netlify.app/send-email', {
+      const response = await fetch('https://corielnks.netlify.app/.netlify/functions/sendEmail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,6 +107,13 @@ const LinkTree = () => {
       setResponseMessage('Network error: Please try again later.');
     } finally {
       setLoading(false);
+    }
+
+    // Dismiss success message after 3 seconds
+    if (isSuccess) {
+      setTimeout(() => {
+        setResponseMessage('');
+      }, 3000);
     }
   };
 
@@ -151,7 +158,7 @@ const LinkTree = () => {
               onChange={handleChange}
               required
               placeholder="Enter your name"
-              className="w-full border border-gray-300 rounded-md p-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${responseMessage.includes('Name') ? 'border-red-500' : 'border-gray-300'}`}
               style={{ color: 'black' }}
             />
           </div>
@@ -164,7 +171,7 @@ const LinkTree = () => {
               onChange={handleChange}
               required
               placeholder="Enter your email"
-              className="w-full border border-gray-300 rounded-md p-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${responseMessage.includes('valid email') ? 'border-red-500' : 'border-gray-300'}`}
               style={{ color: 'black' }}
             />
           </div>
@@ -177,7 +184,7 @@ const LinkTree = () => {
               onChange={handleChange}
               required
               placeholder="Enter the subject"
-              className="w-full border border-gray-300 rounded-md p-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${responseMessage.includes('empty') ? 'border-red-500' : 'border-gray-300'}`}
               style={{ color: 'black' }}
             />
           </div>
@@ -189,7 +196,7 @@ const LinkTree = () => {
               onChange={handleChange}
               required
               placeholder="Write your message here"
-              className="w-full border border-gray-300 rounded-md p-2 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
+              className={`w-full border rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${responseMessage.includes('empty') ? 'border-red-500' : 'border-gray-300'}`}
               style={{ color: 'black' }}
             />
           </div>
