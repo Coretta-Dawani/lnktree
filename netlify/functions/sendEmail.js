@@ -17,21 +17,23 @@ const limiter = rateLimit({
 });
 
 // Apply the limiter to the sendEmail endpoint
-app.use('/sendEmail', limiter);
+app.use('/sendEmail', limiter); // Apply rate limiting to the route
 
 app.post('/sendEmail', async (req, res) => {
+    console.log('Incoming request:', req.body); // Log incoming request
     const { name, email, subject, message } = req.body;
 
     // Validation
     if (!name || !email || !subject || !message) {
+        console.log('Validation error:', { name, email, subject, message }); // Log missing fields
         return res.status(400).json({ error: 'All fields are required.' });
     }
 
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER, // Your email
-            pass: process.env.EMAIL_PASS,  // Your password
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS,
         },
     });
 
@@ -54,7 +56,8 @@ app.post('/sendEmail', async (req, res) => {
 // Export the handler
 exports.handler = async (event, context) => {
     return new Promise((resolve) => {
-        app.handle(event, context, (err, response) => {
+        // Use express to handle the incoming request
+        app(event, context, (err, response) => {
             if (err) {
                 return resolve({
                     statusCode: 500,

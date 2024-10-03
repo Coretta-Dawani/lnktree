@@ -88,10 +88,16 @@ const LinkTree = () => {
       const response = await fetch('/.netlify/functions/sendEmail', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+            'Content-Type': 'application/json',  // Ensure this header is set
         },
-        body: JSON.stringify(formData),
-      });
+        body: JSON.stringify({
+            name: 'Your Name',
+            email: 'your_email@example.com',
+            subject: 'Your Subject',
+            message: 'Your Message',
+        }),
+    });
+    
 
       const result = await response.json();
       if (response.ok) {
