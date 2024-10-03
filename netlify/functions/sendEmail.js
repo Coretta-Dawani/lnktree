@@ -3,7 +3,11 @@ const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
 
 const app = express();
-app.use(express.json()); // To parse JSON bodies
+
+// Set the trust proxy setting
+app.set('trust proxy', true); // Add this line here
+
+app.use(express.json());
 
 // Rate limiting middleware
 const limiter = rateLimit({
@@ -12,14 +16,13 @@ const limiter = rateLimit({
     message: "Too many requests from this IP, please try again later.",
 });
 
-// Apply rate limiting to the sendEmail route
+// Apply the limiter to the sendEmail endpoint
 app.use('/sendEmail', limiter);
 
-// Email sending endpoint
 app.post('/sendEmail', async (req, res) => {
     const { name, email, subject, message } = req.body;
 
-    // Basic validation
+    // Validation
     if (!name || !email || !subject || !message) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
@@ -27,8 +30,8 @@ app.post('/sendEmail', async (req, res) => {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-            user: process.env.EMAIL_USER, // Use your email
-            pass: process.env.EMAIL_PASS,  // Use your password
+            user: process.env.EMAIL_USER, // Your email
+            pass: process.env.EMAIL_PASS,  // Your password
         },
     });
 
@@ -48,9 +51,8 @@ app.post('/sendEmail', async (req, res) => {
     }
 });
 
-// Handler for Netlify
+// Export the handler
 exports.handler = async (event, context) => {
-    // Simulate Express routing
     return new Promise((resolve) => {
         app.handle(event, context, (err, response) => {
             if (err) {
