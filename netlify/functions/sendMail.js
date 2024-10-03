@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -9,8 +8,6 @@ const transporter = nodemailer.createTransport({
         user: process.env.EMAIL_USER, // Your Gmail address from environment variables
         pass: process.env.EMAIL_PASS, // Your generated App Password for Gmail
     },
-    debug: false,
-    logger: true,
 });
 
 // Rate limiter for the form submission route to prevent abuse
@@ -22,7 +19,7 @@ const formLimiter = rateLimit({
 
 // Main handler for the Netlify Function
 exports.handler = async (event) => {
-    // Allow CORS for local testing
+    // Allow CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -35,7 +32,7 @@ exports.handler = async (event) => {
         };
     }
 
-    // Rate limiting
+    // Rate limiting logic
     const ip = event.headers['x-nf-client-connection-ip']; // Get client's IP address
     if (formLimiter && !formLimiter({ ip })) {
         return {
@@ -45,7 +42,7 @@ exports.handler = async (event) => {
         };
     }
 
-    const { name, email, subject, message } = JSON.parse(event.body); // Ensure subject is included
+    const { name, email, subject, message } = JSON.parse(event.body); // Parse request body
 
     // Validation
     if (!name || !email || !subject || !message) {
