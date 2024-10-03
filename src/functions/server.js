@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 
 // CORS configuration
 const corsOptions = {
-    origin: 'http://localhost:3000', // Replace with your actual frontend URL
+    origin: 'http://corielnks.netlify.app', // Replace with your actual frontend URL
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 };
 app.use(cors(corsOptions)); // Use CORS middleware with specified options
