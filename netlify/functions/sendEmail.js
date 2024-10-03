@@ -23,6 +23,11 @@ app.post('/sendEmail', async (req, res) => {
     console.log('Incoming request:', req.body); // Log incoming request
     const { name, email, subject, message } = req.body;
 
+     // Log to check if environment variables are set correctly
+     console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Exists' : 'Not Set');
+     console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Exists' : 'Not Set');
+ 
+
     // Validation
     if (!name || !email || !subject || !message) {
         console.log('Validation error:', { name, email, subject, message }); // Log missing fields
