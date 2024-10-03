@@ -1,79 +1,83 @@
+const nodemailer = require('nodemailer');
+const bodyParser = require('body-parser');
+const rateLimit = require('express-rate-limit');
+require('dotenv').config();
 
-const express = require('express'); // Import Express framework for creating server
-const nodemailer = require('nodemailer'); // Import Nodemailer for sending emails
-const bodyParser = require('body-parser'); // Middleware to parse request bodies
-const cors = require('cors'); // Middleware for handling Cross-Origin Resource Sharing
-const rateLimit = require('express-rate-limit'); // Middleware for rate limiting
-require('dotenv').config(); // Load environment variables from .env file
-console.log('Email User:', process.env.EMAIL_USER);
-console.log('Email Pass:', process.env.EMAIL_PASS ? 'Loaded' : 'Not Loaded');
-
-
-const app = express(); // Create an instance of Express
-const PORT = process.env.PORT || 5000; // Define the port to run the server
-
-// Middleware to parse JSON request bodies
-app.use(bodyParser.json());
-
-// CORS configuration
-const corsOptions = {
-    origin: 'http://corielnks.netlify.app', // Replace with your actual frontend URL
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-};
-app.use(cors(corsOptions)); // Use CORS middleware with specified options
-
-// Nodemailer transport setup for sending emails via Gmail
 const transporter = nodemailer.createTransport({
     service: 'gmail', // Use Gmail as the email service
     auth: {
         user: process.env.EMAIL_USER, // Your Gmail address from environment variables
         pass: process.env.EMAIL_PASS, // Your generated App Password for Gmail
     },
-    debug: false, // Disable debug output in production
-    logger: true // Enable logging for Nodemailer
+    debug: false,
+    logger: true,
 });
 
 // Rate limiter for the form submission route to prevent abuse
 const formLimiter = rateLimit({
     windowMs: 60 * 1000, // 1-minute time window
     max: 20, // Limit each IP to 20 requests per minute
-    message: "Too many requests, please try again later." // Message sent when limit is exceeded
+    message: "Too many requests, please try again later.",
 });
 
-// Endpoint to handle email sending
-app.post('/send-email', formLimiter, (req, res) => {
-    console.log('Headers:', req.headers); // Log headers for debugging
-    console.log('Body:', req.body); // Log body for debugging
+// Main handler for the Netlify Function
+exports.handler = async (event) => {
+    // Allow CORS for local testing
+    const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Content-Type',
+    };
 
-    const { name, email, subject, message } = req.body; // Ensure subject is included
+    if (event.httpMethod === 'OPTIONS') {
+        return {
+            statusCode: 200,
+            headers,
+        };
+    }
+
+    // Rate limiting
+    const ip = event.headers['x-nf-client-connection-ip']; // Get client's IP address
+    if (formLimiter && !formLimiter({ ip })) {
+        return {
+            statusCode: 429,
+            body: JSON.stringify({ error: "Too many requests, please try again later." }),
+            headers,
+        };
+    }
+
+    const { name, email, subject, message } = JSON.parse(event.body); // Ensure subject is included
 
     // Validation
     if (!name || !email || !subject || !message) {
-        return res.status(400).json({ error: 'All fields are required.' }); // Respond with 400 error if validation fails
+        return {
+            statusCode: 400,
+            body: JSON.stringify({ error: 'All fields are required.' }),
+            headers,
+        };
     }
 
     // Email options for Nodemailer
     const mailOptions = {
-        from: `"${name}" <${process.env.EMAIL_USER}>`, // Set the sender name and your email
-        replyTo: email, // The user's email (set this for replies)
-        to: process.env.EMAIL_USER, // Your email where the messages will be sent
-        subject: `Corieslnktree Message from ${name} - ${subject}`, // Subject line includes the user's subject
-        text: `A new message from ${name} (${email}): \n\n${message}`, // Plain text content of the email
-        // Uncomment below to send HTML formatted emails
-        // html: `<p>You have a new message from <strong>${name}</strong> (${email}):</p><p>${message}</p>`,
+        from: `"${name}" <${process.env.EMAIL_USER}>`,
+        replyTo: email,
+        to: process.env.EMAIL_USER,
+        subject: `Corieslnktree Message from ${name} - ${subject}`,
+        text: `A new message from ${name} (${email}): \n\n${message}`,
     };
 
-    // Send the email using Nodemailer
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Error sending email:', error); // Log error if email sending fails
-            return res.status(500).json({ error: 'Error sending email' }); // Respond with 500 error
-        }
-        res.status(200).json({ message: 'Email sent successfully!' }); // Respond with success message
-    });
-});
-
-// Start the server and listen for incoming requests
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`); // Log to console when server starts
-});
+    try {
+        await transporter.sendMail(mailOptions);
+        return {
+            statusCode: 200,
+            body: JSON.stringify({ message: 'Email sent successfully!' }),
+            headers,
+        };
+    } catch (error) {
+        console.error('Error sending email:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: 'Error sending email' }),
+            headers,
+        };
+    }
+};
