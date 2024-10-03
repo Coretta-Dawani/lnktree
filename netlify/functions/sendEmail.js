@@ -55,10 +55,12 @@ app.post('/sendEmail', async (req, res) => {
 
 // Export the handler
 exports.handler = async (event, context) => {
+    console.log('Incoming event:', event);
+    console.log('Context:', context);
     return new Promise((resolve) => {
-        // Use express to handle the incoming request
         app(event, context, (err, response) => {
             if (err) {
+                console.error('Error handling request:', err);
                 return resolve({
                     statusCode: 500,
                     body: JSON.stringify({ error: 'Internal Server Error' }),
