@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Changed background to solid white */
+  background-color: rgb(20, 17, 17);
+}
+
+/* Hover effect with purple gradient */
+a:hover {
+  color: white;
+  background: linear-gradient(45deg, #f0f1ef, #842DD5); /* Purple gradient */
+  transition: background 0.5s, transform 0.3s ease-in-out;
+  transform: scale(1.1) rotate(2deg);
+}
+
+/* Cursor Trail in light purple */
+.cursor-trail {
+  width: 12px;
+  height: 12px;
+  background-color: #842DD5; /* Light Purple */
+  border-radius: 50%;
+  position: absolute;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(132, 45, 213, 0.8);
+  opacity: 1;
+  transition: opacity 0.3s ease-out; /* Optional smooth fade out */
+}
+
+
+@keyframes shrink {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* Hero section with fade-in animation */
+.hero {
+  opacity: 0;
+  animation: fadeInUp 1s forwards;
+  color: #f5faf6; /* Dark Purple for hero text */
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footer or text section with dark purple text */
+footer {
+  color: #ffffff; /* Dark purple for footer */
+  text-align: center;
+}
+
+svg {
+  fill: #ff6600; /* Wattpad's primary color */
+  width: 24px;
+  height: 24px;
+}
+
+Example of a potential CSS issue
+form {
+  display: none; /* This would hide the form */
+  visibility: hidden; /* Or this */
+}
+input::placeholder, textarea::placeholder {
+  color: #000; /* Black placeholder text */
+  opacity: 0.7; /* Slightly transparent */
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Style for link hover effect */
+.link-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color: black;
+  font-weight: 600;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  animation: fadeIn 0.7s ease-out both;
+}
+
+/* Hover effect */
+.link-btn:hover {
+  transform: scale(1.05); /* Slightly increase size */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Apply shadow */
+}
