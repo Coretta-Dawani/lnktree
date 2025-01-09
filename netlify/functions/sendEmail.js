@@ -1,12 +1,11 @@
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const nodemailer = require('nodemailer');
+const cors = require('cors');
+const serverless = require('serverless-http');
 
 const app = express();
-
-// Set the trust proxy setting
-app.set('trust proxy', true); // Add this line here
-
+app.use(cors()); // Apply CORS to all routes
 app.use(express.json());
 
 // Rate limiting middleware
@@ -16,24 +15,15 @@ const limiter = rateLimit({
     message: "Too many requests from this IP, please try again later.",
 });
 
-// Apply the limiter to the sendEmail endpoint
-app.use('/sendEmail', limiter); // Apply rate limiting to the route
+app.use('/sendEmail', limiter); // Apply rate limit to the sendEmail route
 
+// Email sending route
 app.post('/sendEmail', async (req, res) => {
-    console.log('Incoming request:', req.body); // Log incoming request
     const { name, email, subject, message } = req.body;
-
-     // Log to check if environment variables are set correctly
-     console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Exists' : 'Not Set');
-     console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Exists' : 'Not Set');
- 
-
-    // Validation
     if (!name || !email || !subject || !message) {
-        console.log('Validation error:', { name, email, subject, message }); // Log missing fields
         return res.status(400).json({ error: 'All fields are required.' });
     }
-
+    
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -41,67 +31,22 @@ app.post('/sendEmail', async (req, res) => {
             pass: process.env.EMAIL_PASS,
         },
     });
-
+    
     const mailOptions = {
         from: `"${name}" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         subject: `Message from ${name} - ${subject}`,
         text: `A new message from ${name} (${email}): \n\n${message}`,
     };
-
+    
     try {
         await transporter.sendMail(mailOptions);
-        return res.status(200).json({ message: 'Email sent successfully!' });
+        res.status(200).json({ message: 'Email sent successfully!' });
     } catch (error) {
         console.error('Error sending email:', error);
-        return res.status(500).json({ error: 'Error sending email' });
+        res.status(500).json({ error: 'Error sending email' });
     }
 });
 
-// Export the handler
-exports.handler = async (event, context) => {
-    console.log('Incoming event:', event);
-    console.log('Context:', context);
-    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Exists' : 'Not Set');
-    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Exists' : 'Not Set');
-
-    // Handle preflight OPTIONS requests
-    if (event.httpMethod === 'OPTIONS') {
-        return {
-            statusCode: 204, // No content
-            headers: {
-                'Access-Control-Allow-Origin': '*', // Change this to your specific origin if necessary
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
-            },
-        };
-    }
-
-    return new Promise((resolve) => {
-        app(event, context, (err, response) => {
-            if (err) {
-                console.error('Error handling request:', err);
-                return resolve({
-                    statusCode: 500,
-                    headers: {
-                        'Access-Control-Allow-Origin': '*', // Change this to your specific origin if necessary
-                        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                        'Access-Control-Allow-Headers': 'Content-Type',
-                    },
-                    body: JSON.stringify({ error: 'Internal Server Error' }),
-                });
-            }
-
-            // Add CORS headers to the response from the app
-            response.headers = {
-                ...response.headers,
-                'Access-Control-Allow-Origin': '*', // Change this to your specific origin if necessary
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
-            };
-
-            resolve(response);
-        });
-    });
-};
-
+// Use serverless-http to handle the app
+module.exports.handler = serverless(app);
