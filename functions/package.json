@@ -4,8 +4,11 @@
     "description": "Serverless function to send email",
     "main": "sendEmail.js",
     "dependencies": {
+        "cors": "^2.8.5",
         "express": "^4.21.2",
-        "nodemailer": "^6.7.2"
+        "express-rate-limit": "^7.5.0",
+        "nodemailer": "^6.9.16",
+        "serverless-http": "^3.2.0"
     },
     "engines": {
         "node": "21.x"
