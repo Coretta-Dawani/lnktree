@@ -85,7 +85,7 @@ const LinkTree = () => {
     }
 
     try {
-      const response = await fetch('/.netlify/functions/sendEmail', {
+      const response = await fetch('${process.env.REACT_APP_API_URL/sendEmail', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
