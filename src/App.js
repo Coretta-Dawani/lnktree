@@ -88,16 +88,10 @@ const LinkTree = () => {
       const response = await fetch('/.netlify/functions/sendEmail', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',  // Ensure this header is set
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            name: 'Your Name',
-            email: 'your_email@example.com',
-            subject: 'Your Subject',
-            message: 'Your Message',
-        }),
+        body: JSON.stringify(formData),
     });
-    
 
       const result = await response.json();
       if (response.ok) {
@@ -144,7 +138,7 @@ const LinkTree = () => {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="link-btn" // Use the new link-btn class
+            className="link-btn"
           >
             <span className="mr-3" style={{ color: link.iconColor }}>{link.icon}</span>
             {link.title}
@@ -247,7 +241,7 @@ const LinkTree = () => {
             {responseMessage}
           </p>
         )}
-      </div> 
+      </div>
 
       <footer className="text-xs mt-8">
         <p className="mt-2">&copy;CorettaDawani {new Date().getFullYear()}. Designed by <a href="mailto:ckd263@yahoo.com" className="underline">CKD263</a>. All rights reserved.</p>
@@ -258,7 +252,7 @@ const LinkTree = () => {
 
 // App Component
 const App = () => {
-  return <LinkTree />;
+  return <LinkTree />; // Render LinkTree component
 };
 
-export default App;
+export default App; 

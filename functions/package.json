@@ -1,0 +1,13 @@
+{
+    "name": "send-email-function",
+    "version": "1.0.0",
+    "description": "Serverless function to send email",
+    "main": "sendEmail.js",
+    "dependencies": {
+      "nodemailer": "^6.7.2"
+    },
+    "engines": {
+      "node": "14.x"
+    }
+  }
+  
