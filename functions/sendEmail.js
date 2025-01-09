@@ -23,7 +23,7 @@ app.post('/sendEmail', async (req, res) => {
     if (!name || !email || !subject || !message) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
-    
+
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -31,14 +31,14 @@ app.post('/sendEmail', async (req, res) => {
             pass: process.env.EMAIL_PASS,
         },
     });
-    
+
     const mailOptions = {
         from: `"${name}" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         subject: `Message from ${name} - ${subject}`,
         text: `A new message from ${name} (${email}): \n\n${message}`,
     };
-    
+
     try {
         await transporter.sendMail(mailOptions);
         res.status(200).json({ message: 'Email sent successfully!' });
@@ -48,5 +48,11 @@ app.post('/sendEmail', async (req, res) => {
     }
 });
 
-// Use serverless-http to handle the app
+// Listen on the port provided by Render
+const port = process.env.PORT || 3000;  // Default to 3000 for local development
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
+// Use serverless-http to handle the app for serverless environments
 module.exports.handler = serverless(app);
