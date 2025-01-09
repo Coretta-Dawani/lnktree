@@ -23,11 +23,11 @@ const CursorTrail = ({ points }) => {
 
 // LinkTree Component
 const LinkTree = () => {
-  const [points, setPoints] = useState([]);
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [responseMessage, setResponseMessage] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(null);
+  const [points, setPoints] = useState([]); // For mouse cursor trail effect
+  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' }); // For form data
+  const [responseMessage, setResponseMessage] = useState(''); // Response from the backend
+  const [loading, setLoading] = useState(false); // For loading state
+  const [isSuccess, setIsSuccess] = useState(null); // For success/failure response
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -85,13 +85,14 @@ const LinkTree = () => {
     }
 
     try {
-      const response = await fetch('${process.env.REACT_APP_API_URL/sendEmail', {
+      // Correct the URL here to use backticks for template literals
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sendEmail`, {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
-    });
+      });
 
       const result = await response.json();
       if (response.ok) {
@@ -123,7 +124,7 @@ const LinkTree = () => {
       <div className="hero text-center mb-8">
         <img src={profileImage} alt="profile" className="w-24 h-24 rounded-full mx-auto border-4 border-white" />
         <h1 className="text-3xl font-bold mt-4">Coretta K. Dawani</h1>
-        
+
         {/* Quote without Background */}
         <p className="quote-text text-lg italic text-gray-200 font-medium mt-4">
           "From every ruin, life springs anew. And from the ashes of destruction, a phoenix will rise."
@@ -255,4 +256,4 @@ const App = () => {
   return <LinkTree />; // Render LinkTree component
 };
 
-export default App; 
+export default App;
