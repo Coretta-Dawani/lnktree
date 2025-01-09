@@ -152,7 +152,7 @@ const LinkTree = () => {
         ))}
       </div>
 
-      {/* <div className="w-full max-w-md mt-8 bg-white rounded-lg shadow-lg p-6">
+      <div className="w-full max-w-md mt-8 bg-white rounded-lg shadow-lg p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Contact Me</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -247,7 +247,7 @@ const LinkTree = () => {
             {responseMessage}
           </p>
         )}
-      </div> */}
+      </div> 
 
       <footer className="text-xs mt-8">
         <p className="mt-2">&copy;CorettaDawani {new Date().getFullYear()}. Designed by <a href="mailto:ckd263@yahoo.com" className="underline">CKD263</a>. All rights reserved.</p>
