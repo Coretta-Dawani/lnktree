@@ -4,10 +4,10 @@
     "description": "Serverless function to send email",
     "main": "sendEmail.js",
     "dependencies": {
-      "nodemailer": "^6.7.2"
+        "express": "^4.21.2",
+        "nodemailer": "^6.7.2"
     },
     "engines": {
-      "node": "21.x"
+        "node": "21.x"
     }
-  }
-  
+}
