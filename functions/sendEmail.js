@@ -36,8 +36,13 @@ app.post('/sendEmail', async (req, res) => {
         from: `"${name}" <${process.env.EMAIL_USER}>`,
         to: process.env.EMAIL_USER,
         subject: `Message from ${name} - ${subject}`,
-        text: `A new message from ${name} (${email}): \n\n${message}`,
+        html: `
+            <p>A new message from <strong>${name}</strong></p>
+            <p>Contact email: <strong>${email}</strong></p>
+            <p>${message}</p>
+        `,
     };
+    
 
     try {
         await transporter.sendMail(mailOptions);
