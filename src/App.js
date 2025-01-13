@@ -85,7 +85,7 @@ const LinkTree = () => {
     }
 
     try {
-      // Correct the URL here to use backticks for template literals
+       
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sendEmail`, {
         method: 'POST',
         headers: {
